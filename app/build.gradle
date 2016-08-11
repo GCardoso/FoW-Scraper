@@ -1,0 +1,15 @@
+group 'parser'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files("libs/commons-lang3-3.4.jar")
+    compile files("libs/commons-io-2.5.jar")
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+}
