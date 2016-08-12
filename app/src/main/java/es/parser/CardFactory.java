@@ -2,12 +2,9 @@ package es.parser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
 
 public class CardFactory {
 
@@ -28,7 +25,7 @@ public class CardFactory {
         html = results[searchResult.isDoubleSide ? 1 : 0];
 
         String name = getContentOfTag(html, "Name");
-        String cost = formatCosts(getContentOfTag(html, "Cost"));
+        String cost = formatCosts(getContentOfTag(html, "Cost"), true);
         String attribute = getContentOfTag(html, "Attribute");
         String type = getContentOfTag(html, "Type");
         String race = getContentOfTag(html, "Race");
@@ -140,46 +137,46 @@ public class CardFactory {
     }
 
 
-    private static String formatCosts(String costs) {
+    private static String formatCosts(String costs, boolean removeLineBreaks) {
         if (costs == null) return null;
 
         costs = costs.replace("         ", "");
         costs = costs.replace(" />", "/>");
         costs = costs.replace(" >", ">");
-        costs = costs.replace("\n", "");
-
+        if (removeLineBreaks)
+            costs = costs.replace("\n", "");
+        costs = costs.replace(" alt='Dark' ", "");
+        costs = costs.replace(" alt='Light' ", "");
+        costs = costs.replace(" alt='Fire' ", "");
+        costs = costs.replace(" alt='Water' ", "");
+        costs = costs.replace(" alt='Wind' ", "");
+        costs = costs.replace(" alt=\"Dark\" ", "");
+        costs = costs.replace(" alt=\"Light\" ", "");
+        costs = costs.replace(" alt=\"Fire\" ", "");
+        costs = costs.replace(" alt=\"Water\" ", "");
+        costs = costs.replace(" alt=\"Wind\" ", "");
         costs = costs.replace(" alt='Dark'", "");
         costs = costs.replace(" alt='Light'", "");
         costs = costs.replace(" alt='Fire'", "");
         costs = costs.replace(" alt='Water'", "");
         costs = costs.replace(" alt='Wind'", "");
-        costs = costs.replace(" class='mark' ", " ");
-        costs = costs.replace(" class='costicons' ", " ");
         costs = costs.replace(" alt=\"Dark\"", "");
         costs = costs.replace(" alt=\"Light\"", "");
         costs = costs.replace(" alt=\"Fire\"", "");
         costs = costs.replace(" alt=\"Water\"", "");
         costs = costs.replace(" alt=\"Wind\"", "");
+
+        costs = costs.replace(" class='mark' ", " ");
+        costs = costs.replace(" class='costicons' ", " ");
         costs = costs.replace(" class=\"mark\" ", " ");
         costs = costs.replace(" class=\"costicons\" ", " ");
 
         String[] voids = new String[]{
-                "<img class='costicons' src='_images/icons/free%s.png'/>",
-                "<img class=\"costicons\" src=\"_images/icons/free%s.png\"/>",
-                "<img class='costicons' src='_images/icons/free%s.png'>",
-                "<img class=\"costicons\" src=\"_images/icons/free%s.png\">",
-                "<img class='mark' src='_images/icons/free%s.png'/>",
-                "<img class=\"mark\" src=\"_images/icons/free%s.png\"/>",
-                "<img class='mark' src='_images/icons/free%s.png'>",
-                "<img class=\"mark\" src=\"_images/icons/free%s.png\">",
-                "\n<img class='costicons' src='_images/icons/free%s.png'/>",
-                "\n<img class=\"costicons\" src=\"_images/icons/free%s.png\"/>",
-                "\n<img class='costicons' src='_images/icons/free%s.png'>",
-                "\n<img class=\"costicons\" src=\"_images/icons/free%s.png\">",
-                "\n<img class='mark' src='_images/icons/free%s.png'/>",
-                "\n<img class=\"mark\" src=\"_images/icons/free%s.png\"/>",
-                "\n<img class='mark' src='_images/icons/free%s.png'>",
-                "\n<img class=\"mark\" src=\"_images/icons/free%s.png\">",
+                "<img src='_images/icons/free%s.png'/>\n ",
+                "<img src=\"_images/icons/free%s.png\"/>\n ",
+                "<img src='_images/icons/free%s.png'>\n ",
+                "<img src=\"_images/icons/free%s.png\">\n ",
+
                 "<img src='_images/icons/free%s.png'/>",
                 "<img src=\"_images/icons/free%s.png\"/>",
                 "<img src='_images/icons/free%s.png'>",
@@ -190,29 +187,15 @@ public class CardFactory {
             for (String cost : costArray) {
                 String upper = cost.toUpperCase();
                 String replacement = String.format(str, cost);
-                costs = costs.replace(replacement, upper);
+                costs = costs.replace(replacement, "$·" + upper);
             }
         }
-        for (String str : voids) {
-            costs = costs.replace("\n" + str, str);
-        }
         String[] colors = new String[]{
-                "<img class='costicons' src='_images/icons/%s.png'/>",
-                "<img class=\"costicons\" src=\"_images/icons/%s.png\"/>",
-                "<img class='costicons' src='_images/icons/%s.png'>",
-                "<img class=\"costicons\" src=\"_images/icons/%s.png\">",
-                "<img class='mark' src='_images/icons/%s.png'/>",
-                "<img class=\"mark\" src=\"_images/icons/%s.png\"/>",
-                "<img class='mark' src='_images/icons/%s.png'>",
-                "<img class=\"mark\" src=\"_images/icons/%s.png\">",
-                "\n<img class='costicons' src='_images/icons/%s.png'/>",
-                "\n<img class=\"costicons\" src=\"_images/icons/%s.png\"/>",
-                "\n<img class='costicons' src='_images/icons/%s.png'>",
-                "\n<img class=\"costicons\" src=\"_images/icons/%s.png\">",
-                "\n<img class='mark' src='_images/icons/%s.png'/>",
-                "\n<img class=\"mark\" src=\"_images/icons/%s.png\"/>",
-                "\n<img class='mark' src='_images/icons/%s.png'>",
-                "\n<img class=\"mark\" src=\"_images/icons/%s.png\">",
+                "<img src='_images/icons/%s.png'/> ",
+                "<img src=\"_images/icons/%s.png\"/> ",
+                "<img src='_images/icons/%s.png'> ",
+                "<img src=\"_images/icons/%s.png\"> ",
+
                 "<img src='_images/icons/%s.png'/>",
                 "<img src=\"_images/icons/%s.png\"/>",
                 "<img src='_images/icons/%s.png'>",
@@ -224,13 +207,18 @@ public class CardFactory {
             for (String color : colorArray) {
                 String upper = color.toUpperCase();
                 String replacement = String.format(phrase, color);
-                costs = costs.replace(replacement, upper);
+                costs = costs.replace(replacement, "$·"+upper);
             }
         }
 
-        for (String str : colors) {
-            costs = costs.replace("\n" + str, str);
+        while (costs.contains("  ")) {
+            costs = costs.replace("  ", " ");
         }
+
+        costs = costs.replace("\n $·", "");
+        costs = costs.replace("\n$·", "");
+        costs = costs.replace(" $·", "");
+        costs = costs.replace("$·", "");
 
         return costs;
     }
@@ -244,23 +232,33 @@ public class CardFactory {
         text = text.replace("<span class=\"mark_abilities\">Continuous</span>", "Continuous:");
         text = text.replace("<span class=\"mark_abilities\">Enter</span>", "Enter:");
         text = text.replace("<span class=\"mark_abilities\">Activate</span>", "Activate.");
-        text = formatCosts(text);
+        text = text.replace("<span class='mark_break'>Break</span>", "Break:");
+        text = text.replace("<span class=\"mark_break\">Break</span>", "Break:");
         text = text.replace("<br/>", "\n");
         text = text.replace("<br>", "\n");
         text = text.replace("<hr class=\"card-hr\">", "\n");
-        text = text.replace("<img src=\"_images/icons/rest.png\">", "Rest");
+        text = text.replace("<img class=\"mark\" src=\"_images/icons/rest.png\">", "Rest");
+        text = text.replace("<img class='mark' src='_images/icons/rest.png'>", "Rest");
+
         text = text.replace("<span class='mark_abilities'>", "");
         text = text.replace("<span class=\"mark_abilities\">", "");
         text = text.replace("<span class='mark_skills'>", "");
         text = text.replace("<span class=\"mark_skills\">", "");
         text = text.replace("<span class='mark_errata'>", "");
         text = text.replace("<span class=\"mark_errata\">", "");
+        text = text.replace("<span class='mark_breaktext'>", "");
+        text = text.replace("<span class=\"mark_breaktext\">", "");
         text = text.replace("<j esonators>", "J/Resonators");
         text = text.replace("</j>", "");
         text = text.replace("</span>", "");
-        while (text.contains("  ")) {
+        while (text.contains("\n \n") || text.contains("\n\n") || text.contains("  ")) {
+            text = text.replace("\n \n", "\n");
+            text = text.replace("\n\n", "\n");
             text = text.replace("  ", " ");
         }
+        text = text.replace("\n ", "\n");
+
+        text = formatCosts(text, false);
         return text;
     }
 

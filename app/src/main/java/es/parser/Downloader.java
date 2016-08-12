@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Downloader {
 
     public static void main(String... args) throws IOException {
-        ArrayList<SearchResult> searchResults = CardFactory.parseCardsFromUrl("http://db.fowtcg.us/?do=search&exact=yes&orderby=setnum&format=New+Frontiers");
+        ArrayList<SearchResult> searchResults = CardFactory.parseCardsFromUrl("http://db.fowtcg.us/index.php?do=search");
         ArrayList<CardModel> models = CardFactory.getModelFromCards(searchResults);
 
         ArrayList<String> traits = new ArrayList<String>();
