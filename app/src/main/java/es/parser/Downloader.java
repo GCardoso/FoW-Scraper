@@ -1,6 +1,7 @@
 package es.parser;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 import java.io.BufferedWriter;
@@ -35,7 +36,7 @@ public class Downloader {
                 sets.add(model.set);
             }
         }
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String modelsAsString = gson.toJson(models);
         String typesAsString = gson.toJson(types);
         String traitsAsString = gson.toJson(traits);

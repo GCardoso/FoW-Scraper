@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class CardFactory {
 
@@ -55,24 +56,16 @@ public class CardFactory {
         }
         ArrayList<String> racesOrTraits = new ArrayList<String>();
 
-        if (race != null && !race.equals("(none)")) {
-            if (race.contains("/")) {
-                for (String str : race.split("/")) {
+        for (String str : new String[]{race, trait}) {
+            if (str != null && !str.equals("(none)")) {
+                if (str.contains("/")) {
+                    Collections.addAll(racesOrTraits, str.split("/"));
+                } else {
                     racesOrTraits.add(str);
                 }
-            } else {
-                racesOrTraits.add(race);
             }
         }
-        if (trait != null && !trait.equals("(none)")) {
-            if (trait.contains("/")) {
-                for (String str : trait.split("/")) {
-                    racesOrTraits.add(str);
-                }
-            } else {
-                racesOrTraits.add(trait);
-            }
-        }
+
 
         String thumbnailImage = searchResult.thumbnail;
         String cardImage = searchResult.image;
@@ -207,7 +200,7 @@ public class CardFactory {
             for (String color : colorArray) {
                 String upper = color.toUpperCase();
                 String replacement = String.format(phrase, color);
-                costs = costs.replace(replacement, "$·"+upper);
+                costs = costs.replace(replacement, "$·" + upper);
             }
         }
 
@@ -225,7 +218,7 @@ public class CardFactory {
 
     private static String formatText(String text) {
         if (text == null) return null;
-
+        text = cleanup(text);
         text = text.replace("<span class='mark_abilities'>Continuous</span>", "Continuous:");
         text = text.replace("<span class='mark_abilities'>Enter</span>", "Enter:");
         text = text.replace("<span class='mark_abilities'>Activate</span>", "Activate.");
@@ -237,9 +230,8 @@ public class CardFactory {
         text = text.replace("<br/>", "\n");
         text = text.replace("<br>", "\n");
         text = text.replace("<hr class=\"card-hr\">", "\n");
-        text = text.replace("<img class=\"mark\" src=\"_images/icons/rest.png\">", "Rest");
-        text = text.replace("<img class='mark' src='_images/icons/rest.png'>", "Rest");
-
+        text = text.replace("<img class=\"mark\" src=\"_images/icons/rest.png\">", " Rest ");
+        text = text.replace("<img class='mark' src='_images/icons/rest.png'>", " Rest ");
         text = text.replace("<span class='mark_abilities'>", "");
         text = text.replace("<span class=\"mark_abilities\">", "");
         text = text.replace("<span class='mark_skills'>", "");
@@ -251,14 +243,27 @@ public class CardFactory {
         text = text.replace("<j esonators>", "J/Resonators");
         text = text.replace("</j>", "");
         text = text.replace("</span>", "");
-        while (text.contains("\n \n") || text.contains("\n\n") || text.contains("  ")) {
-            text = text.replace("\n \n", "\n");
-            text = text.replace("\n\n", "\n");
-            text = text.replace("  ", " ");
-        }
-        text = text.replace("\n ", "\n");
+
+        text = cleanup(text);
 
         text = formatCosts(text, false);
+
+        text = text.replace("\n Rest ", " Rest ");
+        text = text.replace("\nRest ", " Rest ");
+        text = text.replace("Break: \n", "Break: ");
+        text = text.replace(" :", ":");
+
+        text = cleanup(text);
+
+        return text;
+    }
+
+    private static String cleanup(String text) {
+        while (text.contains("\n \n") || text.contains("\n\n") || text.contains("  ") || text.contains("\n ")) {
+            text = text.replace("\n \n", "\n").replace("\n\n", "\n").replace("  ", " ").replace("\n ", "\n");
+        }
+        text = text.replace(" \n", " ");
+
         return text;
     }
 
