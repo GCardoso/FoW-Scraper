@@ -115,7 +115,7 @@ public class CardFactory {
         for (int i = 0; i < cardsFromList.size(); i++) {
             SearchResult result = cardsFromList.get(i);
             models.add(generateCardModel(result));
-            System.out.println(i * 100f / cardsFromList.size() + "%");
+            System.out.println((i + 1) + " out of " + cardsFromList.size());
         }
 
         return models;
@@ -230,6 +230,7 @@ public class CardFactory {
         text = text.replace("<br/>", "\n");
         text = text.replace("<br>", "\n");
         text = text.replace("<hr class=\"card-hr\">", "\n");
+        text = text.replace("<hr class='card-hr'>", "\n");
         text = text.replace("<img class=\"mark\" src=\"_images/icons/rest.png\">", " Rest ");
         text = text.replace("<img class='mark' src='_images/icons/rest.png'>", " Rest ");
         text = text.replace("<span class='mark_abilities'>", "");
@@ -252,6 +253,32 @@ public class CardFactory {
         text = text.replace("\nRest ", " Rest ");
         text = text.replace("Break: \n", "Break: ");
         text = text.replace(" :", ":");
+        text = text.replace("Pay", "Pay ");
+        text = text.replace("pay", "pay ");
+        text = text.replace("pay s", "pays ");
+        text = text.replace("plays1", "pays 1");
+        text = text.replace("Incarnation", "Incarnation ");
+
+        String[] colors = {"W", "R", "U", "G", "B", "M", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "X"};
+        for (String color1 : colors) {
+            for (String color2 : colors) {
+                String toReplace = String.format("%sor%s", color1, color2);
+                String replacement = String.format(" %s or %s ", color1, color2);
+                text = text.replace(toReplace, replacement);
+            }
+            text = text.replace("Barrier" + color1, "Barrier " + color1 + " ");
+            text = text.replace("Energize" + color1, "Energize " + color1);
+            text = text.replace("Judgment" + color1, "Judgment " + color1);
+            text = text.replace("J-Activate" + color1, "J-Activate " + color1);
+            text = text.replace("Produce" + color1, "Produce " + color1);
+            text = text.replace("Awakening" + color1, "Awakening " + color1);
+            text = text.replace(color1 + "less ", color1 + " less ");
+            text = text.replace(color1 + ":", " " + color1 + ":");
+        }
+
+        text = cleanup(text);
+
+        text = text.replace("W,R,U,G, orB.", "W, R, U, G or B.");
 
         text = cleanup(text);
 
@@ -259,11 +286,11 @@ public class CardFactory {
     }
 
     private static String cleanup(String text) {
-        while (text.contains("\n \n") || text.contains("\n\n") || text.contains("  ") || text.contains("\n ")) {
-            text = text.replace("\n \n", "\n").replace("\n\n", "\n").replace("  ", " ").replace("\n ", "\n");
+        while (text.contains("\n \n") || text.contains("\n\n") || text.contains("  ") || text.contains("\n ") || text.contains(" ,") || text.contains(" .")) {
+            text = text.replace("\n \n", "\n").replace("\n\n", "\n").replace("  ", " ").replace("\n ", "\n").replace(" ,", ",").replace(" .", ".");
         }
         text = text.replace(" \n", " ");
-
+        text = text.trim();
         return text;
     }
 
